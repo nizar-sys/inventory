@@ -1,36 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RouteController;
+use App\Http\Controllers\language\LanguageController;
+use App\Http\Controllers\pages\HomePage;
+use App\Http\Controllers\pages\Page2;
+use App\Http\Controllers\pages\MiscError;
+use App\Http\Controllers\authentications\LoginBasic;
+use App\Http\Controllers\authentications\RegisterBasic;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+// Main Page Route
+Route::get('/', [HomePage::class, 'index'])->name('pages-home');
+Route::get('/page-2', [Page2::class, 'index'])->name('pages-page-2');
 
-# ------ Unauthenticated routes ------ #
-Route::get('/', [AuthenticatedSessionController::class, 'create']);
-require __DIR__.'/auth.php';
+// locale
+Route::get('/lang/{locale}', [LanguageController::class, 'swap']);
+Route::get('/pages/misc-error', [MiscError::class, 'index'])->name('pages-misc-error');
 
-
-# ------ Authenticated routes ------ #
-Route::middleware('auth')->group(function() {
-    Route::get('/dashboard', [RouteController::class, 'dashboard'])->name('home'); # dashboard
-
-    Route::prefix('profile')->group(function(){
-        Route::get('/', [ProfileController::class, 'myProfile'])->name('profile');
-        Route::put('/change-ava', [ProfileController::class, 'changeFotoProfile'])->name('change-ava');
-        Route::put('/change-profile', [ProfileController::class, 'changeProfile'])->name('change-profile');
-    }); # profile group
-
-    Route::resource('users', UserController::class);
-});
+// authentication
+Route::get('/auth/login-basic', [LoginBasic::class, 'index'])->name('auth-login-basic');
+Route::get('/auth/register-basic', [RegisterBasic::class, 'index'])->name('auth-register-basic');
