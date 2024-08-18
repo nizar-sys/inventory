@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\User;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class UserDataTable extends DataTable
+class ProductDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -23,22 +23,22 @@ class UserDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
-            ->addColumn('action', 'console.users.action')
-            ->editColumn('created_at', function ($users) {
-                return $users->created_at->format('d F Y H:i');
+            ->addColumn('action', 'console.products.action')
+            ->editColumn('image', function ($product) {
+                return '<img src="' . $product->image_url . '" alt="' . $product->name . '" class="img-thumbnail" style="width: 100px; height: 100px;">';
             })
-            ->editColumn('role', function ($users) {
-                return $users->getRoleNames()->first();
+            ->editColumn('category.name', function ($product) {
+                return $product->category->full_name;
             })
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'image']);
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(User $model): QueryBuilder
+    public function query(Product $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->newQuery()->with(['category', 'supplier.branch']);
     }
 
     /**
@@ -60,7 +60,7 @@ class UserDataTable extends DataTable
         $language = [
             'sLengthMenu' => 'Show _MENU_',
             'search' => '',
-            'searchPlaceholder' => 'Search Users',
+            'searchPlaceholder' => 'Search Products',
             'paginate' => [
                 'next' => '<i class="ri-arrow-right-s-line"></i>',
                 'previous' => '<i class="ri-arrow-left-s-line"></i>'
@@ -69,14 +69,13 @@ class UserDataTable extends DataTable
         // Konfigurasi tombol
         $buttons = [
             [
-                'text' => '<i class="ri-add-line me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Add User</span>',
+                'text' => '<i class="ri-add-line me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Add Product</span>',
                 'className' => 'add-new btn btn-primary mb-5 mb-md-0 me-3 waves-effect waves-light',
-                'attr' => [
-                    'data-bs-toggle' => 'offcanvas',
-                    'data-bs-target' => '#offcanvasAddUser'
-                ],
                 'init' => 'function (api, node, config) {
                     $(node).removeClass("btn-secondary");
+                }',
+                'action' => 'function (e, dt, node, config) {
+                    window.location = "' . route('products.create') . '";
                 }'
             ],
             [
@@ -84,13 +83,13 @@ class UserDataTable extends DataTable
                 'className' => 'btn btn-secondary mb-5 mb-md-0 waves-effect waves-light',
                 'action' => 'function (e, dt, node, config) {
                     dt.ajax.reload();
-                    $("#users-table_filter input").val("").keyup();
+                    $("#products-table_filter input").val("").keyup();
                 }'
             ]
         ];
 
         return $this->builder()
-            ->setTableId('users-table')
+            ->setTableId('products-table')
             ->columns($this->getColumns())
             ->parameters([
                 'order' => [[0, 'desc']], // Urutan default
@@ -101,10 +100,12 @@ class UserDataTable extends DataTable
                 'autoWidth' => false, // AutoWidth
             ])
             ->ajax([
-                'url'  => route('users.index'),
+                'url'  => route('products.index'),
                 'type' => 'GET',
                 'data' => "function(d){
-                    d.role_id = $('select[name=role_filter]').val(); // Kirim filter role_id
+                    d.branch_id = $('select[name=branch_id_filter]').val();
+                    d.category_id = $('select[name=category_id_filter]').val();
+                    d.supplier_id = $('select[name=supplier_id_filter]').val();
                 }",
             ]);
     }
@@ -116,12 +117,17 @@ class UserDataTable extends DataTable
     {
         return [
             Column::make('DT_RowIndex')->title('#')->orderable(false)->searchable(false),
+            Column::make('image')
+                ->title('Image')
+                ->searchable(false)
+                ->orderable(false)
+                ->width(100)
+                ->printable(false),
+            Column::make('category.name')->title('Category'),
+            Column::make('supplier.name')->title('Supplier'),
+            Column::make('code'),
             Column::make('name'),
-            Column::make('email'),
-            Column::make('role')->title('Role')
-                ->searchable(false),
-            Column::make('created_at')->title('Created Date')
-                ->searchable(false),
+            Column::make('stock'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
@@ -136,6 +142,6 @@ class UserDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'User_' . date('YmdHis');
+        return 'Product_' . date('YmdHis');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -40,7 +41,7 @@ class SearchController extends Controller
                             continue;
                         }
                         $menus[] = [
-                            'name' => $subitem['title'],
+                            'name' => $item['title'] . ' - ' . $subitem['title'],
                             'icon' => $item['icon'],
                             'url' => route($subitem['route'])
                         ];
@@ -81,7 +82,22 @@ class SearchController extends Controller
             ];
         })->toArray();
 
-        $files = $files->merge($userAvatars);
+        $productFiles = Product::select('id', 'name', 'image', 'supplier_id')->get()->map(function ($product) {
+            $url = $product->image_url;
+
+            $response = Http::head($url);
+            $fileSize = $response->header('Content-Length');
+
+            return [
+                "name" => 'Product ' . $product->name,
+                "subtitle" => "By " . $product->supplier->name,
+                "src" => $product->image,
+                "meta" => $this->formatSize($fileSize),
+                "url" => $product->image,
+            ];
+        })->toArray();
+
+        $files = $files->merge($userAvatars, $productFiles);
 
         return [
             'files' => $files,

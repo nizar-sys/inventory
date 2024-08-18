@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\User;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class UserDataTable extends DataTable
+class CategoryDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -23,20 +23,17 @@ class UserDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
-            ->addColumn('action', 'console.users.action')
-            ->editColumn('created_at', function ($users) {
-                return $users->created_at->format('d F Y H:i');
+            ->addColumn('action', 'console.categories.action')
+            ->editColumn('created_at', function ($query) {
+                return $query->created_at?->format('d F Y H:i');
             })
-            ->editColumn('role', function ($users) {
-                return $users->getRoleNames()->first();
-            })
-            ->rawColumns(['action']);
+            ->rawColumns(['action', 'is_active']);
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(User $model): QueryBuilder
+    public function query(Category $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -60,7 +57,7 @@ class UserDataTable extends DataTable
         $language = [
             'sLengthMenu' => 'Show _MENU_',
             'search' => '',
-            'searchPlaceholder' => 'Search Users',
+            'searchPlaceholder' => 'Search Categories',
             'paginate' => [
                 'next' => '<i class="ri-arrow-right-s-line"></i>',
                 'previous' => '<i class="ri-arrow-left-s-line"></i>'
@@ -69,14 +66,13 @@ class UserDataTable extends DataTable
         // Konfigurasi tombol
         $buttons = [
             [
-                'text' => '<i class="ri-add-line me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Add User</span>',
+                'text' => '<i class="ri-add-line me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Add Category</span>',
                 'className' => 'add-new btn btn-primary mb-5 mb-md-0 me-3 waves-effect waves-light',
-                'attr' => [
-                    'data-bs-toggle' => 'offcanvas',
-                    'data-bs-target' => '#offcanvasAddUser'
-                ],
                 'init' => 'function (api, node, config) {
                     $(node).removeClass("btn-secondary");
+                }',
+                'action' => 'function (e, dt, node, config) {
+                    window.location = "' . route('categories.create') . '";
                 }'
             ],
             [
@@ -84,13 +80,13 @@ class UserDataTable extends DataTable
                 'className' => 'btn btn-secondary mb-5 mb-md-0 waves-effect waves-light',
                 'action' => 'function (e, dt, node, config) {
                     dt.ajax.reload();
-                    $("#users-table_filter input").val("").keyup();
+                    $("#categories-table_filter input").val("").keyup();
                 }'
             ]
         ];
 
         return $this->builder()
-            ->setTableId('users-table')
+            ->setTableId('categories-table')
             ->columns($this->getColumns())
             ->parameters([
                 'order' => [[0, 'desc']], // Urutan default
@@ -101,10 +97,10 @@ class UserDataTable extends DataTable
                 'autoWidth' => false, // AutoWidth
             ])
             ->ajax([
-                'url'  => route('users.index'),
+                'url'  => route('categories.index'),
                 'type' => 'GET',
                 'data' => "function(d){
-                    d.role_id = $('select[name=role_filter]').val(); // Kirim filter role_id
+                    d.is_active = $('select[name=is_active_filter]').val();
                 }",
             ]);
     }
@@ -116,10 +112,8 @@ class UserDataTable extends DataTable
     {
         return [
             Column::make('DT_RowIndex')->title('#')->orderable(false)->searchable(false),
+            Column::make('code'),
             Column::make('name'),
-            Column::make('email'),
-            Column::make('role')->title('Role')
-                ->searchable(false),
             Column::make('created_at')->title('Created Date')
                 ->searchable(false),
             Column::computed('action')
@@ -136,6 +130,6 @@ class UserDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'User_' . date('YmdHis');
+        return 'Category_' . date('YmdHis');
     }
 }
