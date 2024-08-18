@@ -25,10 +25,10 @@ if (typeof $ !== "undefined") {
         }
         // Open search on 'CTRL+/'
         $(document).on("keydown", function (event) {
-            let ctrlKey = event.ctrlKey,
-                slashKey = event.which === 191;
+            const isCtrlOrCmd = event.ctrlKey || event.metaKey; // Check for CTRL (Windows) or CMD (macOS)
+            const isSlashKey = event.which === 191; // Check if the pressed key is '/'
 
-            if (ctrlKey && slashKey) {
+            if (isCtrlOrCmd && isSlashKey) {
                 if (searchInputWrapper.length) {
                     searchInputWrapper.toggleClass("d-none");
                     searchInput.focus();

@@ -78,7 +78,7 @@ if (!function_exists('deleteFileIfExist')) {
     {
         try {
             if (File::exists(public_path($filePath))) {
-                File::delete(public_path($filePath));
+                unlink(public_path($filePath));
             }
         } catch (\Exception $e) {
             throw $e;

@@ -86,10 +86,8 @@
     <script src="{{ asset('/materialize') }}/assets/vendor/libs/@form-validation/auto-focus.js"></script>
 
     <!-- Main JS -->
-    <script src="{{ asset('/materialize') }}/assets/js/main.js"></script>
-
     <!-- Page JS -->
-    @vite('resources/js/auth/script.js')
+    @vite(['resources/js/main.js', 'resources/js/auth/script.js'])
 
     <script src="{{ asset('/materialize') }}/assets/vendor/libs/toastr/toastr.js"></script>
     <script>
