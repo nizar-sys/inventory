@@ -33,4 +33,9 @@ class Product extends Model
     {
         return asset($this->image);
     }
+
+    public function stockOpnames()
+    {
+        return $this->hasMany(StockOpname::class);
+    }
 }
