@@ -3,12 +3,15 @@
 use App\Http\Controllers\Console\CategoryController;
 use App\Http\Controllers\Console\PermissionController;
 use App\Http\Controllers\Console\ProductController;
+use App\Http\Controllers\Console\ProductStockController;
 use App\Http\Controllers\Console\RoleController;
+use App\Http\Controllers\Console\StockOpnameController;
 use App\Http\Controllers\Console\SupplierController;
 use App\Http\Controllers\Console\UserController;
 use App\Http\Controllers\Console\WarehouseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Models\StockOpname;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,6 +52,6 @@ Route::prefix('console')->middleware(['auth', 'verified'])->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
-    Route::resource('stocks', ProductController::class);
-    Route::resource('stock-opnames', ProductController::class);
+    Route::resource('stocks', ProductStockController::class);
+    Route::resource('stock-opnames', StockOpnameController::class);
 });
