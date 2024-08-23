@@ -9,6 +9,7 @@ use App\Http\Requests\RequestStoreSupplier;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -16,7 +17,14 @@ class SupplierController extends Controller
 {
     public function index(Request $request, SupplierDataTable $dataTable)
     {
-        $branches = Warehouse::select('id', 'name', 'is_active')->active()->get();
+        $branches = Warehouse::select('id', 'name', 'is_active')->active()
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })
+            ->get();
 
         return $dataTable
             ->addScope(new SupplierScope($request))
@@ -25,7 +33,13 @@ class SupplierController extends Controller
 
     public function create()
     {
-        $branches = Warehouse::select('id', 'name', 'is_active')->active()->get();
+        $branches = Warehouse::select('id', 'name', 'is_active')->active()
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
 
         return view('console.suppliers.create', compact('branches'));
     }
@@ -52,7 +66,14 @@ class SupplierController extends Controller
 
     public function edit(Supplier $supplier)
     {
-        $branches = Warehouse::select('id', 'name', 'is_active')->active()->get();
+        $branches = Warehouse::select('id', 'name', 'is_active')->active()
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })
+            ->get();
 
         return view('console.suppliers.edit', compact('supplier', 'branches'));
     }

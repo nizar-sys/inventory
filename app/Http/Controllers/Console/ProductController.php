@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -18,9 +19,21 @@ class ProductController extends Controller
 {
     public function index(Request $request, ProductDataTable $dataTable)
     {
-        $branches = Warehouse::select('id', 'name')->get();
+        $branches = Warehouse::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
         $categories = Category::select('id', 'code', 'name')->get();
-        $suppliers = Supplier::select('id', 'name')->get();
+        $suppliers = Supplier::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('branch.workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
 
         return $dataTable
             ->addScope(new ProductScope($request))
@@ -30,7 +43,13 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::select('id', 'code', 'name')->get();
-        $suppliers = Supplier::select('id', 'name')->get();
+        $suppliers = Supplier::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('branch.workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
 
         return view('console.products.create', compact('categories', 'suppliers'));
     }
@@ -64,7 +83,13 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::select('id', 'code', 'name')->get();
-        $suppliers = Supplier::select('id', 'name')->get();
+        $suppliers = Supplier::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('branch.workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
 
         return view('console.products.edit', compact('product', 'categories', 'suppliers'));
     }

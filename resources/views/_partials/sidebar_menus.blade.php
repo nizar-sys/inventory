@@ -1,6 +1,11 @@
 <ul class="menu-inner py-1">
     @php
         $menuWhereRole = config('console-menu'); // admin
+
+        if(Auth::user()->hasRole('Warehouse Admin')){
+            $menuWhereRole = config('console-menu-admin-warehouse'); // warehouse admin
+        }
+
     @endphp
 
     @foreach ($menuWhereRole as $menu)

@@ -34,4 +34,9 @@ class Warehouse extends Model
     {
         return $query->where('is_active', true);
     }
+
+    public function workers()
+    {
+        return $this->hasMany(WarehouseWorker::class);
+    }
 }

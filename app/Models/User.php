@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->avatar ? asset($this->avatar) : asset('/materialize/assets/img/avatars/1.png');
     }
+
+    public function warehouses()
+    {
+        return $this->hasMany(WarehouseWorker::class);
+    }
 }

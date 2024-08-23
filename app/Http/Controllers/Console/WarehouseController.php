@@ -6,7 +6,9 @@ use App\DataTables\Scopes\WarehouseScope;
 use App\DataTables\WarehouseDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RequestStoreWarehouse;
+use App\Models\User;
 use App\Models\Warehouse;
+use App\Models\WarehouseWorker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +24,11 @@ class WarehouseController extends Controller
 
     public function create()
     {
-        return view('console.warehouses.create');
+        $workers = User::whereHas('roles', function ($query) {
+            $query->where('name', '!=', 'Administrator');
+        })->get();
+
+        return view('console.warehouses.create', compact('workers'));
     }
 
     public function store(RequestStoreWarehouse $request)
@@ -30,7 +36,11 @@ class WarehouseController extends Controller
         DB::beginTransaction();
 
         try {
-            Warehouse::create($request->validated());
+            $warehouse = Warehouse::create($request->validated());
+            WarehouseWorker::create([
+                'user_id' => $request->worker,
+                'warehouse_id' => $warehouse->id
+            ]);
 
             DB::commit();
 
@@ -45,7 +55,11 @@ class WarehouseController extends Controller
 
     public function edit(Warehouse $warehouse)
     {
-        return view('console.warehouses.edit', compact('warehouse'));
+        $workers = User::whereHas('roles', function ($query) {
+            $query->where('name', '!=', 'Administrator');
+        })->get();
+
+        return view('console.warehouses.edit', compact('warehouse', 'workers'));
     }
 
     public function update(RequestStoreWarehouse $request, Warehouse $warehouse)
@@ -55,10 +69,25 @@ class WarehouseController extends Controller
         try {
             $warehouse->update($request->validated());
 
+            if ($request->worker) {
+                $worker = WarehouseWorker::where('warehouse_id', $warehouse->id)->first();
+                if ($worker) {
+                    $worker->update([
+                        'user_id' => $request->worker
+                    ]);
+                } else {
+                    WarehouseWorker::create([
+                        'user_id' => $request->worker,
+                        'warehouse_id' => $warehouse->id
+                    ]);
+                }
+            }
+
             DB::commit();
 
             return redirect()->route('warehouses.index')->with('success', 'Warehouse updated successfully.');
         } catch (\Exception $e) {
+            dd($e->getMessage());
             DB::rollBack();
             Log::error('Error updating warehouse: ' . $e->getMessage());
 

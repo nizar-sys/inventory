@@ -14,6 +14,7 @@ use App\Models\ProductStock;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -21,7 +22,13 @@ class ProductStockController extends Controller
 {
     public function index(ProductStockDataTable $dataTable, Request $request)
     {
-        $products = Product::select('id', 'name')->get();
+        $products = Product::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('supplier.branch.workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
         $enumTypes = EnumHelper::getEnumByKey(StockTypeEnum::class, [StockTypeEnum::IN, StockTypeEnum::OUT]);
 
 
@@ -30,7 +37,13 @@ class ProductStockController extends Controller
 
     public function create()
     {
-        $products = Product::select('id', 'name')->get();
+        $products = Product::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('supplier.branch.workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
         $enumTypes = EnumHelper::getEnumByKey(StockTypeEnum::class, [StockTypeEnum::IN, StockTypeEnum::OUT]);
 
         return view('console.product-stocks.create', compact('products', 'enumTypes'));
@@ -74,7 +87,13 @@ class ProductStockController extends Controller
 
     public function edit(ProductStock $stock)
     {
-        $products = Product::select('id', 'name')->get();
+        $products = Product::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('supplier.branch.workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
         $enumTypes = EnumHelper::getEnumByKey(StockTypeEnum::class, [StockTypeEnum::IN, StockTypeEnum::OUT]);
 
         return view('console.product-stocks.edit', compact('products', 'enumTypes', 'stock'));
