@@ -11,6 +11,7 @@ use App\Http\Requests\RequestStockOpname;
 use App\Models\Product;
 use App\Models\StockOpname;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -18,7 +19,13 @@ class StockOpnameController extends Controller
 {
     public function index(StockOpnameDataTable $dataTable, Request $request)
     {
-        $products = Product::select('id', 'name')->get();
+        $products = Product::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('supplier.branch.workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
         $enumTypes = EnumHelper::getEnumByKey(StockTypeEnum::class, [StockTypeEnum::IN, StockTypeEnum::OUT]);
 
         return $dataTable->addScopes([new StockOpnameScope($request)])->render('console.stock-opnames.index', compact('products', 'enumTypes'));
@@ -26,7 +33,13 @@ class StockOpnameController extends Controller
 
     public function create()
     {
-        $products = Product::all();
+        $products = Product::select('id', 'name')
+            ->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+                $authId = Auth::id();
+                $query->whereHas('supplier.branch.workers', function ($query) use ($authId) {
+                    $query->where('user_id', $authId);
+                });
+            })->get();
         return view('console.stock-opnames.create', compact('products'));
     }
 

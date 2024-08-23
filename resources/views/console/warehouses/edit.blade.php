@@ -155,6 +155,24 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="col-sm-12 col-md-6"><!-- Worker -->
+                                <div class="form-floating form-floating-outline mb-5">
+                                    <select id="warehouse-worker"
+                                        class="form-select @error('worker') is-invalid @enderror" name="worker">
+                                        <option value="" selected>Choose Admin</option>
+                                        @foreach ($workers as $worker)
+                                            <option value="{{ $worker->id }}"
+                                                {{ old('worker', $warehouse->workers?->first()?->user_id??null) == $worker->id ? 'selected' : '' }}>
+                                                {{ $worker->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <label for="warehouse-worker">Admin</label>
+                                    @error('worker')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
 

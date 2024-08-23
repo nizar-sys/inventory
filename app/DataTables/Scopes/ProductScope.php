@@ -3,6 +3,7 @@
 namespace App\DataTables\Scopes;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Contracts\DataTableScope;
 
 class ProductScope implements DataTableScope
@@ -26,6 +27,11 @@ class ProductScope implements DataTableScope
         })
         ->when($this->request->filled('supplier_id'), function ($query) {
             $query->where('supplier_id', $this->request->supplier_id);
+        })->when(Auth::user()->hasRole('Warehouse Admin'), function ($query) {
+            $authId = Auth::id();
+            $query->whereHas('supplier.branch.workers', function ($query) use ($authId) {
+                $query->where('user_id', $authId);
+            });
         });
     }
 }

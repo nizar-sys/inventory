@@ -120,5 +120,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
             },
         },
+        worker: {
+            validators: {
+                notEmpty: {
+                    message: "Please select the worker",
+                },
+            },
+        },
     });
 });
