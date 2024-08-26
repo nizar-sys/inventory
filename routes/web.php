@@ -42,7 +42,7 @@ require __DIR__ . '/auth.php';
 Route::prefix('console')->middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('role:Administrator')->group(function () {
-        Route::resource('permissions', PermissionController::class);
+        // Route::resource('permissions', PermissionController::class);
         Route::resource('roles', RoleController::class);
         Route::patch('/users/profile/{id}', [UserController::class, 'updateDetail'])->name('users.profile.update');
         Route::resource('users', UserController::class);

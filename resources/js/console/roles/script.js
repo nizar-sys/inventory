@@ -115,14 +115,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                 },
             },
-            "permissions[]": {
-                validators: {
-                    choice: {
-                        min: 1,
-                        message: "Please select at least one permission",
-                    },
-                },
-            },
+            // "permissions[]": {
+            //     validators: {
+            //         choice: {
+            //             min: 1,
+            //             message: "Please select at least one permission",
+            //         },
+            //     },
+            // },
         });
     })();
 

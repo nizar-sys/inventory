@@ -23,8 +23,8 @@ class RequestStoreRole extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'permissions' => 'required|array',
-            'permissions.*' => 'required',
+            // 'permissions' => 'required|array',
+            // 'permissions.*' => 'required',
         ];
     }
 
@@ -39,9 +39,9 @@ class RequestStoreRole extends FormRequest
             'name.required' => 'The role name is required.',
             'name.string' => 'The role name must be a string.',
             'name.max' => 'The role name may not be greater than :max characters.',
-            'permissions.required' => 'The permissions are required.',
-            'permissions.array' => 'The permissions must be an array.',
-            'permissions.*.required' => 'The permission is required.',
+            // 'permissions.required' => 'The permissions are required.',
+            // 'permissions.array' => 'The permissions must be an array.',
+            // 'permissions.*.required' => 'The permission is required.',
         ];
     }
 }
