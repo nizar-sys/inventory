@@ -15,23 +15,30 @@ $menuItems = [
     [
         'header' => 'User Managements',
         'items' => [
+            // [
+            //     'title' => 'Roles & Permissions',
+            //     'icon' => 'ri-lock-2-line',
+            //     'route' => '',
+            //     'active' => ['permissions.*', 'roles.*'],
+            //     'submenu' => [
+            //         [
+            //             'title' => 'Permission',
+            //             'route' => 'permissions.index',
+            //             'active' => 'permissions.*'
+            //         ],
+            //         [
+            //             'title' => 'Roles',
+            //             'route' => 'roles.index',
+            //             'active' => 'roles.*'
+            //         ]
+            //     ]
+            // ],
             [
-                'title' => 'Roles & Permissions',
-                'icon' => 'ri-lock-2-line',
-                'route' => '',
-                'active' => ['permissions.*', 'roles.*'],
-                'submenu' => [
-                    [
-                        'title' => 'Permission',
-                        'route' => 'permissions.index',
-                        'active' => 'permissions.*'
-                    ],
-                    [
-                        'title' => 'Roles',
-                        'route' => 'roles.index',
-                        'active' => 'roles.*'
-                    ]
-                ]
+                'title' => 'Roles',
+                'icon' => 'ri-user-star-line',
+                'route' => 'roles.index',
+                'active' => 'roles.*',
+                'submenu' => []
             ],
             [
                 'title' => 'Users',

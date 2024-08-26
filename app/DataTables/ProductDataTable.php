@@ -80,12 +80,56 @@ class ProductDataTable extends DataTable
             ],
             [
                 'text' => '<i class="ri-refresh-line me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Reload</span>',
-                'className' => 'btn btn-secondary mb-5 mb-md-0 waves-effect waves-light',
+                'className' => 'btn btn-secondary mb-5 mb-md-0 me-3 waves-effect waves-light',
                 'action' => 'function (e, dt, node, config) {
                     dt.ajax.reload();
                     $("#products-table_filter input").val("").keyup();
                 }'
             ]
+        ];
+
+        $columnExport = [0, 2, 3, 4, 5, 6];
+        $buttons[] = [
+            [
+                'extend' => 'collection',
+                'text' => '<i class="ri-upload-2-line ri-16px me-2"></i><span class="d-none d-sm-inline-block">Export</span>',
+                'buttons' => [
+                    [
+                        'extend' => 'copy',
+                        'exportOptions' => [
+                            'columns' => $columnExport
+                        ],
+                    ],
+                    [
+                        'extend' => 'excel',
+                        'exportOptions' => [
+                            'columns' => $columnExport
+                        ],
+                    ],
+                    [
+                        'extend' => 'csv',
+                        'exportOptions' => [
+                            'columns' => $columnExport
+                        ],
+                    ],
+                    [
+                        'extend' => 'pdf',
+                        'exportOptions' => [
+                            'columns' => $columnExport
+                        ],
+                    ],
+                    [
+                        'extend' => 'print',
+                        'exportOptions' => [
+                            'columns' => $columnExport,
+                        ],
+                    ]
+                ],
+                'className' => 'btn btn-secondary buttons-collection dropdown-toggle btn-outline-secondary waves-effect waves-light',
+                'init' => 'function (api, node, config) {
+                    $(node).removeClass("btn-secondary");
+                }',
+            ],
         ];
 
         return $this->builder()

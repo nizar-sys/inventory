@@ -16,10 +16,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $corePermission = Permission::create(['name' => 'all_permissions']);
+        // $corePermission = Permission::create(['name' => 'all_permissions']);
 
         $adminRole = Role::create(['name' => 'Administrator']);
-        $adminRole->givePermissionTo($corePermission);
+        $warehouseAdmin = Role::create(['name' => 'Warehouse Admin']);
+        // $adminRole->givePermissionTo($corePermission);
 
         $adminUser = User::create([
             'name' => 'Administrator',
@@ -27,34 +28,41 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'email_verified_at' => now(),
         ]);
+        $warehouseAdminUser = User::create([
+            'name' => 'Warehouse Admin',
+            'email' => 'warehouse1@mail.com',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),
+        ]);
 
         $adminUser->assignRole($adminRole);
+        $warehouseAdminUser->assignRole($warehouseAdmin);
 
-        $permissions = [
-            'User Management',
-            'user_management_permission_read',
-            'user_management_permission_create',
-            'user_management_permission_update',
-            'user_management_permission_delete',
-            'user_management_role_read',
-            'user_management_role_create',
-            'user_management_role_update',
-            'user_management_role_delete',
-            'user_management_user_read',
-            'user_management_user_create',
-            'user_management_user_update',
-            'user_management_user_delete',
-        ];
+        // $permissions = [
+        //     'User Management',
+        //     'user_management_permission_read',
+        //     'user_management_permission_create',
+        //     'user_management_permission_update',
+        //     'user_management_permission_delete',
+        //     'user_management_role_read',
+        //     'user_management_role_create',
+        //     'user_management_role_update',
+        //     'user_management_role_delete',
+        //     'user_management_user_read',
+        //     'user_management_user_create',
+        //     'user_management_user_update',
+        //     'user_management_user_delete',
+        // ];
 
-        $defaultPermissions = array_map(function ($permission) {
-            return [
-                'name' => $permission,
-                'guard_name' => 'web',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }, $permissions);
+        // $defaultPermissions = array_map(function ($permission) {
+        //     return [
+        //         'name' => $permission,
+        //         'guard_name' => 'web',
+        //         'created_at' => now(),
+        //         'updated_at' => now(),
+        //     ];
+        // }, $permissions);
 
-        Permission::insert($defaultPermissions);
+        // Permission::insert($defaultPermissions);
     }
 }
